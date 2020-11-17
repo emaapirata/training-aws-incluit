@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-AWS.config.update({ region: 'us-east-1' });
+//WS.config.update({ region: 'us-east-2' });
 
 const sns = new AWS.SNS();
 
@@ -10,16 +10,24 @@ exports.handler = async (event) => {
         const output = event.Records.map(record => record.body);
 
         console.log('Received messages: ', output);
-
+        
+        await sns.publish({
+            Message: `Hello from the otherside ${JSON.parse(output[0]).name}`,
+            TopicArn: 'arn:aws:sns:us-east-2:705525533531:sns-for-lambda-1'
+        }).promise();
+        
         // Send a notification to SNS for each message
+/*
         await Promise.all(
             output.map(
-                body => sns.publish({
-                    Message: `Hola ${JSON.parse(body).name}`,
-                    TopicArn: 'arn:aws:sns:us-east-1:437051718508:pepe'
-                }).promise()
+                body => {
+                    console.log(body.name)
+                    sns.publish({
+                    Message: `Hola ${body.name}`,
+                    TopicArn: 'arn:aws:sns:us-east-2:705525533531:sns-for-lambda-1'
+                }).promise()}
             )
-        );
+        );*/
 
         // Status code 200 means we were successful
         // Successful handling removes the message from the queue
